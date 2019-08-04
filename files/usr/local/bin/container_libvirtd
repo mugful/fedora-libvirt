@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ $(find /etc/libvirt -maxdepth 0 -empty | wc -l) != 0 ]; then
+    echo "/etc/libvirt is empty, populating it with default configs."
+    cp -raT /etc/libvirt-default /etc/libvirt
+fi
+
+/usr/sbin/libvirtd "$@"
