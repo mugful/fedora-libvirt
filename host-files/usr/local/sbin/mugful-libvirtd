@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -eu
+
+[ -e /usr/lib/passwd ] && USR_LIB_PASSWD="-v /usr/lib/passwd:/usr/lib/passwd:ro" || USR_LIB_PASSWD=""
+[ -e /usr/lib/group ] && USR_LIB_GROUP="-v /usr/lib/group:/usr/lib/group:ro" || USR_LIB_GROUP=""
+
+mkdir -p /etc/libvirt
+mkdir -p /run/libvirt
+mkdir -p /var/lib/libvirt
+
+podman run \
+    -d \
+    --name mugful_libvirtd \
+    --conmon-pidfile /run/mugful_libvirtd.pid \
+    --privileged \
+    --pid=host \
+    --net=host \
+    --security-opt label=disable \
+    $USR_LIB_GROUP \
+    $USR_LIB_PASSWD \
+    -v /dev:/dev \
+    -v /etc/group:/etc/group:ro \
+    -v /etc/libvirt:/etc/libvirt:z \
+    -v /etc/nsswitch.conf:/etc/nsswitch.conf:ro \
+    -v /etc/passwd:/etc/passwd:ro \
+    -v /lib/modules:/lib/modules:ro \
+    -v /run/dbus:/run/dbus:shared \
+    -v /run/libvirt:/run/libvirt:shared,z \
+    -v /sys/fs/cgroup:/sys/fs/cgroup \
+    -v /var/lib/libvirt:/var/lib/libvirt:shared,z \
+    quay.io/mugful/fedora-libvirt:master container_libvirtd "$@"

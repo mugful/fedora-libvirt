@@ -1,0 +1,17 @@
+[Unit]
+Description=Libvirt container from mugful of images
+
+[Service]
+Restart=always
+RestartSec=10
+
+ExecStart=/usr/local/sbin/mugful-libvirtd
+
+ExecStop=/usr/bin/podman stop -t 10 mugful_libvirtd
+ExecStopPost=/usr/bin/podman rm -f mugful_libvirtd
+KillMode=none
+Type=forking
+PIDFile=/run/mugful_libvirtd.pid
+
+[Install]
+WantedBy=multi-user.target
