@@ -5,4 +5,4 @@ if [ $(find /etc/libvirt -maxdepth 0 -empty | wc -l) != 0 ]; then
     cp -raT /etc/libvirt-default /etc/libvirt
 fi
 
-/usr/sbin/libvirtd "$@"
+exec /usr/sbin/libvirtd "$@"

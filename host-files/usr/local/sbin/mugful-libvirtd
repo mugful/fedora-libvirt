@@ -2,6 +2,14 @@
 
 set -eu
 
+# users/groups creation from qemu RPM spec
+# https://apps.fedoraproject.org/packages/qemu/sources/spec/
+getent group kvm >/dev/null || groupadd -g 36 -r kvm
+getent group qemu >/dev/null || groupadd -g 107 -r qemu
+getent passwd qemu >/dev/null || \
+  useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
+    -c "qemu user" qemu
+
 [ -e /usr/lib/passwd ] && USR_LIB_PASSWD="-v /usr/lib/passwd:/usr/lib/passwd:ro" || USR_LIB_PASSWD=""
 [ -e /usr/lib/group ] && USR_LIB_GROUP="-v /usr/lib/group:/usr/lib/group:ro" || USR_LIB_GROUP=""
 
@@ -12,6 +20,7 @@ mkdir -p /var/lib/libvirt
 podman run \
     -d \
     --name mugful_libvirtd \
+    --log-driver journald \
     --conmon-pidfile /run/mugful_libvirtd.pid \
     --privileged \
     --pid=host \

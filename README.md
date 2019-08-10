@@ -22,7 +22,8 @@ Or build your own:
 Run via Systemd
 ---------------
 
-Copy the files from `host-files` onto your system. Then run:
+Copy the files from `host-files` onto your system, either manually or
+via `sudo ./install.sh`. Then run:
 
     sudo systemctl daemon-reload
     sudo systemctl start mugful-libvirtd

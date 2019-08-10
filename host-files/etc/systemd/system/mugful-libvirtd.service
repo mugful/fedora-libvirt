@@ -5,7 +5,7 @@ Description=Libvirt container from mugful of images
 Restart=always
 RestartSec=10
 
-ExecStart=/usr/local/sbin/mugful-libvirtd
+ExecStart=/usr/local/bin/mugful-libvirtd
 
 ExecStop=/usr/bin/podman stop -t 10 mugful_libvirtd
 ExecStopPost=/usr/bin/podman rm -f mugful_libvirtd
