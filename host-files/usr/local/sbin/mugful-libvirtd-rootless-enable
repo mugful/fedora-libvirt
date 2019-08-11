@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -euxo pipefail
+
+if rpm-ostree status | grep -i deployments &> /dev/null; then
+    if ! rpm-ostree status | grep -i 'unlocked: development' &> /dev/null; then
+        rpm-ostree usroverlay
+    fi
+fi
+
+podman run \
+    --rm \
+    --name mugful_libvirtd_polkit_seed_actions \
+    --log-driver journald \
+    --privileged \
+    --security-opt label=disable \
+    -v /usr/share/polkit-1:/usr/share/host-polkit-1 \
+    quay.io/mugful/fedora-libvirt:master cp /usr/share/polkit-1/actions/org.libvirt.unix.policy /usr/share/polkit-1/actions/org.libvirt.api.policy /usr/share/host-polkit-1/actions/
+
+podman run \
+    --rm \
+    --name mugful_libvirtd_polkit_seed_rules \
+    --log-driver journald \
+    --privileged \
+    --security-opt label=disable \
+    -v /usr/share/polkit-1:/usr/share/host-polkit-1 \
+    quay.io/mugful/fedora-libvirt:master cp /usr/share/polkit-1/rules.d/50-libvirt.rules /usr/share/host-polkit-1/rules.d/50-libvirt.rules
+
+systemctl restart polkit
+
+if systemctl is-active mugful-libvirtd &> /dev/null; then
+    systemctl restart mugful-libvirtd
+fi

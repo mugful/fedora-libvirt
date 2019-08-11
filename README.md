@@ -28,6 +28,10 @@ via `sudo ./install.sh`. Then run:
     sudo systemctl daemon-reload
     sudo systemctl start mugful-libvirtd
 
+If you want to connect to libvirt as non-root user, run also:
+
+    sudo mugful-libvirtd-rootless-enable
+
 Run manually
 ------------
 
