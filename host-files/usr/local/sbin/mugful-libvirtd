@@ -30,7 +30,8 @@ podman run \
     --security-opt label=disable \
     $USR_LIB_GROUP \
     $USR_LIB_PASSWD \
-    -v /dev:/dev \
+    -v /dev/kvm:/dev/kvm:rw \
+    -v /dev/net:/dev/net:rw \
     -v /etc/group:/etc/group:ro \
     -v /etc/libvirt:/etc/libvirt:z \
     -v /etc/nsswitch.conf:/etc/nsswitch.conf:ro \
