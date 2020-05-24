@@ -41,4 +41,4 @@ podman run \
     -v /run/libvirt:/run/libvirt:shared,z \
     -v /sys/fs/cgroup:/sys/fs/cgroup \
     -v /var/lib/libvirt:/var/lib/libvirt:shared,z \
-    quay.io/mugful/fedora-libvirt:master container_libvirtd "$@"
+    quay.io/mugful/fedora-libvirt container_libvirtd "$@"
