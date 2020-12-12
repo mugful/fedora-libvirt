@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/fedora:32
+FROM registry.fedoraproject.org/fedora:33
 MAINTAINER Jiri Stransky <jistr@jistr.com>
 
 COPY build.sh /root/build.sh
