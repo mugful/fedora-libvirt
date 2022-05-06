@@ -15,7 +15,7 @@ podman run \
     --privileged \
     --security-opt label=disable \
     -v /usr/share/polkit-1:/usr/share/host-polkit-1 \
-    quay.io/mugful/fedora-libvirt:master cp /usr/share/polkit-1/actions/org.libvirt.unix.policy /usr/share/polkit-1/actions/org.libvirt.api.policy /usr/share/host-polkit-1/actions/
+    quay.io/mugful/fedora-libvirt cp /usr/share/polkit-1/actions/org.libvirt.unix.policy /usr/share/polkit-1/actions/org.libvirt.api.policy /usr/share/host-polkit-1/actions/
 
 podman run \
     --rm \
@@ -24,7 +24,7 @@ podman run \
     --privileged \
     --security-opt label=disable \
     -v /usr/share/polkit-1:/usr/share/host-polkit-1 \
-    quay.io/mugful/fedora-libvirt:master cp /usr/share/polkit-1/rules.d/50-libvirt.rules /usr/share/host-polkit-1/rules.d/50-libvirt.rules
+    quay.io/mugful/fedora-libvirt cp /usr/share/polkit-1/rules.d/50-libvirt.rules /usr/share/host-polkit-1/rules.d/50-libvirt.rules
 
 systemctl restart polkit
 

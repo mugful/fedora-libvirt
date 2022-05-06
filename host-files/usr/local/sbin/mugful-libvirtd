@@ -30,11 +30,13 @@ podman run \
     --security-opt label=disable \
     $USR_LIB_GROUP \
     $USR_LIB_PASSWD \
-    -v /dev/kvm:/dev/kvm:rw \
-    -v /dev/net:/dev/net:rw \
+    --device /dev/kvm \
+    --device /dev/net \
     -v /etc/group:/etc/group:ro \
     -v /etc/libvirt:/etc/libvirt:z \
     -v /etc/nsswitch.conf:/etc/nsswitch.conf:ro \
+    -v /etc/firewalld:/etc/firewalld:rw \
+    -v /usr/lib/firewalld:/usr/lib/firewalld:ro \
     -v /etc/passwd:/etc/passwd:ro \
     -v /lib/modules:/lib/modules:ro \
     -v /run/dbus:/run/dbus:shared \

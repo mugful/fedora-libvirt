@@ -5,4 +5,9 @@ if [ $(find /etc/libvirt -maxdepth 0 -empty | wc -l) != 0 ]; then
     cp -raT /etc/libvirt-default /etc/libvirt
 fi
 
+if [ ! -e "/etc/firewalld/zones/libvirt.xml" ]; then
+    echo "/etc/firewalld/zones/libvirt.xml is not present, populating it with default from container."
+    cp -raT /usr/lib/firewalld-libvirt/zones/libvirt.xml /etc/firewalld/zones/libvirt.xml
+fi
+
 exec /usr/sbin/libvirtd "$@"
