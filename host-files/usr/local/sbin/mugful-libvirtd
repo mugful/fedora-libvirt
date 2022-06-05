@@ -12,6 +12,13 @@ getent passwd qemu >/dev/null || \
 # https://apps.fedoraproject.org/packages/libvirt/sources/spec/
 getent group libvirt >/dev/null || groupadd -r libvirt
 
+if [ ! -e "/etc/firewalld/zones/libvirt.xml" ]; then
+    echo "/etc/firewalld/zones/libvirt.xml is not present, populating it with default from container."
+    podman run --rm quay.io/mugful/fedora-libvirt cat /usr/lib/firewalld-libvirt/zones/libvirt.xml \
+           > /etc/firewalld/zones/libvirt.xml
+    systemctl restart firewalld
+fi
+
 [ -e /usr/lib/passwd ] && USR_LIB_PASSWD="-v /usr/lib/passwd:/usr/lib/passwd:ro" || USR_LIB_PASSWD=""
 [ -e /usr/lib/group ] && USR_LIB_GROUP="-v /usr/lib/group:/usr/lib/group:ro" || USR_LIB_GROUP=""
 
