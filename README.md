@@ -23,7 +23,13 @@ Run via Systemd
 ---------------
 
 Copy the files from `host-files` onto your system, either manually or
-via `sudo ./install.sh`. Then run:
+via `sudo ./install.sh`, or download from github:
+
+    curl https://raw.githubusercontent.com/mugful/fedora-libvirt/master/host-files/usr/local/sbin/mugful-libvirtd | sudo tee /usr/local/sbin/mugful-libvirtd
+    curl https://raw.githubusercontent.com/mugful/fedora-libvirt/master/host-files/usr/local/sbin/mugful-libvirtd-rootless-enable | sudo tee /usr/local/sbin/mugful-libvirtd-rootless-enable
+    curl https://raw.githubusercontent.com/mugful/fedora-libvirt/master/host-files/etc/systemd/system/mugful-libvirtd.service | sudo tee /etc/systemd/system/mugful-libvirtd.service
+
+Then run:
 
     sudo systemctl daemon-reload
     sudo systemctl start mugful-libvirtd
