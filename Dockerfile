@@ -1,4 +1,4 @@
-FROM quay.io/fedora/fedora:35-x86_64
+FROM quay.io/fedora/fedora:36-x86_64
 MAINTAINER Jiri Stransky <jistr@jistr.com>
 
 COPY build.sh /root/build.sh
