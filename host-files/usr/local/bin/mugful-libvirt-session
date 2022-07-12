@@ -1,0 +1,102 @@
+#!/bin/bash
+
+set -eu
+
+if [ -z "$*" ]; then
+    echo "Please provide a command to run in the container."
+    exit 1
+fi
+
+if [ -t 1 ]; then
+    CONTAINER_TTY_CREATE="${CONTAINER_TTY_CREATE:--ti}"
+    CONTAINER_TTY_START="${CONTAINER_TTY_START:--i}"
+else
+    CONTAINER_TTY_CREATE="${CONTAINER_TTY_CREATE:-}"
+    CONTAINER_TTY_START="${CONTAINER_TTY_START:-}"
+fi
+
+CONTAINER_IMAGE=${CONTAINER_IMAGE:-quay.io/mugful/fedora-libvirt}
+ROOTLESS_IMAGE_ID=$(podman inspect -f '{{.Id}}' $CONTAINER_IMAGE 2> /dev/null || true)
+ROOTFUL_IMAGE_ID=$(sudo podman inspect -f '{{.Id}}' $CONTAINER_IMAGE 2> /dev/null || true)
+if [ -n "$ROOTLESS_IMAGE_ID" -a "$ROOTLESS_IMAGE_ID" != "$ROOTFUL_IMAGE_ID" ]; then
+    echo "Refreshing rootful image $CONTAINER_IMAGE..."
+    podman save $CONTAINER_IMAGE | sudo podman load
+fi
+
+[ -e /usr/lib/passwd ] && USR_LIB_PASSWD="-v /usr/lib/passwd:/usr/lib/passwd:ro" || USR_LIB_PASSWD=""
+[ -e /usr/lib/group ] && USR_LIB_GROUP="-v /usr/lib/group:/usr/lib/group:ro" || USR_LIB_GROUP=""
+
+IDX=0
+while sudo podman inspect mugful_libvirt_session$IDX &> /dev/null; do
+    ((IDX++))
+done || true
+CONTAINER_NAME=mugful_libvirt_session$IDX
+
+mkdir -p $HOME/.vagrant.d
+mkdir -p $HOME/.cache/libvirt
+mkdir -p $HOME/.config/libvirt
+mkdir -p $HOME/.local/share/libvirt/vagrant
+
+sudo podman create \
+    --device /dev/snd \
+    --name $CONTAINER_NAME \
+    $CONTAINER_TTY_CREATE \
+    --rm \
+    --net host \
+    --pid host \
+    --privileged \
+    --security-opt label=disable \
+    -u $UID:$UID \
+    -v $HOME/.vagrant.d:$HOME/.vagrant.d \
+    -v $HOME/.cache/libvirt:$HOME/.cache/libvirt \
+    -v $HOME/.config/libvirt:$HOME/.config/libvirt \
+    -v $HOME/.local/share/libvirt:$HOME/.local/share/libvirt \
+    \
+    -v /etc/passwd:/etc/passwd:ro \
+    -v /etc/group:/etc/group:ro \
+    -v /etc/libvirt:/etc/libvirt:ro \
+    -v /lib/modules:/lib/modules:ro \
+    -v /run/libvirt:/run/libvirt:shared \
+    -v /var/lib/libvirt:/var/lib/libvirt \
+    $USR_LIB_PASSWD \
+    $USR_LIB_GROUP \
+    \
+    -e LC_ALL=C.UTF-8 \
+    -e HOME="$HOME" \
+    -e SHELL="$SHELL" \
+    -e XDG_DATA_DIRS="$XDG_DATA_DIRS" \
+    -e COLORTERM \
+    -e DESKTOP_SESSION \
+    -e DISPLAY \
+    -e EDITOR \
+    -e LANG \
+    -e TERM \
+    -e VTE_VERSION \
+    -e XDG_CURRENT_DESKTOP \
+    -e XDG_MENU_PREFIX \
+    -e XDG_RUNTIME_DIR \
+    -e XDG_SEAT \
+    -e XDG_SESSION_DESKTOP \
+    -e XDG_SESSION_ID \
+    -e XDG_SESSION_TYPE \
+    -e XDG_VTNR \
+    -e WAYLAND_DISPLAY \
+    ${MUGFUL_LIBVIRT_SESSION_ARGS:-} \
+    $CONTAINER_IMAGE \
+    "$@" \
+    > /dev/null
+
+CONTAINER_FS=$(sudo podman mount $CONTAINER_NAME)
+if [ -z "$CONTAINER_FS" ]; then
+    echo "ERROR: Empty container filesystem root path, cannot initialize the container."
+    exit 1
+fi
+sudo mkdir -p "${CONTAINER_FS}${HOME}/.cache"
+sudo mkdir -p "${CONTAINER_FS}${HOME}/.config"
+sudo mkdir -p "${CONTAINER_FS}${HOME}/.local/share"
+sudo chown -R "$USER:" "${CONTAINER_FS}${HOME}"
+
+sudo podman start $CONTAINER_NAME \
+    $CONTAINER_TTY_START \
+    -a \
+    --detach-keys='ctrl-^'
